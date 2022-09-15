@@ -16,15 +16,34 @@ def con():
 
 
 # Methods of queries and executions
-def _post():
+def get_accounts():
     mydb = con()
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = ("SELECT account_id, credential_id, first_name, last_name, social_security_number, "
                 "account_number, account_status, balance FROM accounts")
     try:
         cur.execute(sql_post)
-        mydb.commit()
+        data = cur.fetchall()
         cur.close()
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldnt insert info to post\n", err)
+
+    finally:
+        return data
+
+
+def get_credentials():
+    mydb = con()
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    sql_post = "SELECT credential_id, account_password, pin_1, pin_2 FROM credentials"
+    try:
+        cur.execute(sql_post)
+        data = cur.fetchall()
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldnt insert info to post\n", err)
+
+    finally:
+        return data
