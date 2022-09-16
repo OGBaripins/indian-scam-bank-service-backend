@@ -2,27 +2,17 @@ from datetime import datetime
 import simplejson as json
 from flask import Flask
 from flask_restful import Api, Resource
-
+import etc.helpers as helpers
 import db_queries
 
 app = Flask(__name__)
 api = Api(app)
 
 
-def convert_to_json(data):
-    data = json.dumps(data, use_decimal=True, default=convert_datetime_to_string)
-    return json.loads(str(data).replace("'", '"'))
-
-
-def convert_datetime_to_string(o):
-    if isinstance(o, datetime):
-        return o.__str__()
-
-
 class Accounts(Resource):
 
     def get(self):
-        return convert_to_json(db_queries.get_accounts())
+        return helpers.convert_to_json(db_queries.get_accounts())
 
     def post(self):
         pass
@@ -34,7 +24,7 @@ class Accounts(Resource):
 class Credentials(Resource):
 
     def get(self):
-        return convert_to_json(db_queries.get_credentials())
+        return helpers.convert_to_json(db_queries.get_credentials())
 
     def post(self):
         pass
@@ -46,7 +36,7 @@ class Credentials(Resource):
 class Transactions(Resource):
 
     def get(self):
-        return convert_to_json(db_queries.get_transactions())
+        return helpers.convert_to_json(db_queries.get_transactions())
 
     def post(self):
         pass
