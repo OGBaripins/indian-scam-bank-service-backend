@@ -24,6 +24,9 @@ class Accounts(Resource):
     def get(self):
         return convert_to_json(db_queries.get_accounts())
 
+    def get(self):
+        return convert_to_json(db_queries.get_account(account_id="1"))
+
     def post(self):
         pass
 
@@ -56,8 +59,8 @@ class Transactions(Resource):
 
 
 api.add_resource(Credentials, "/credentials")
-api.add_resource(Transactions, "/transactions")
 api.add_resource(Accounts, "/accounts")
+api.add_resource(Transactions, "/transactions")
 
 if __name__ == "__main__":
     app.run(debug=True)
