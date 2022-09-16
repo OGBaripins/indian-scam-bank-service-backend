@@ -1,8 +1,5 @@
 from datetime import datetime
-
 import simplejson as json
-from decimal import Decimal
-
 from flask import Flask
 from flask_restful import Api, Resource
 
@@ -13,11 +10,11 @@ api = Api(app)
 
 
 def convert_to_json(data):
-    data = json.dumps(data, use_decimal=True, default=myconverter)
+    data = json.dumps(data, use_decimal=True, default=convert_datetime_to_string)
     return json.loads(str(data).replace("'", '"'))
 
 
-def myconverter(o):
+def convert_datetime_to_string(o):
     if isinstance(o, datetime):
         return o.__str__()
 
@@ -61,5 +58,6 @@ class Transactions(Resource):
 api.add_resource(Credentials, "/credentials")
 api.add_resource(Transactions, "/transactions")
 api.add_resource(Accounts, "/accounts")
+
 if __name__ == "__main__":
     app.run(debug=True)
