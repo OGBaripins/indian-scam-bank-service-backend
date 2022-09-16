@@ -1,17 +1,24 @@
-import json
+import simplejson as json
+from decimal import Decimal
 
 from flask import Flask
 from flask_restful import Api, Resource
+
 import db_queries
 
 app = Flask(__name__)
 api = Api(app)
 
 
+def convert_to_json(data):
+    data = json.dumps(data, use_decimal=True)
+    return json.loads(str(data).replace("'", '"'))
+
+
 class Accounts(Resource):
 
     def get(self):
-        return json.dumps({'data': db_queries.get_accounts()})
+        return convert_to_json(db_queries.get_accounts())
 
     def post(self):
         pass
@@ -23,7 +30,7 @@ class Accounts(Resource):
 class Credentials(Resource):
 
     def get(self):
-        return json.dumps({'data': db_queries.get_credentials()})
+        return convert_to_json(db_queries.get_credentials())
 
     def post(self):
         pass
