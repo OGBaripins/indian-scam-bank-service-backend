@@ -1,14 +1,32 @@
 import mysql.connector
+import yaml
+
+
+def create_conf(path, sub_directory):
+    if path:
+        with open(path, 'r') as stream:
+            try:
+                parsed_yaml = yaml.safe_load(stream)
+                return parsed_yaml.get(sub_directory) if sub_directory is not None else parsed_yaml
+            except yaml.YAMLError as exc:
+                print(exc)
+    print("Path was not provided")
+    return None
 
 
 def con():
+
+    conf = create_conf("../etc/conf.yaml", "DATABASE_CON")
+
+    print(conf)
+
     try:
         mydb = mysql.connector.connect(
-            host="sql11.freesqldatabase.com",
-            port="3306",
-            user="sql11520035",
-            password="WjRaAgGLiL",
-            database="sql11520035"
+            host=conf.get("HOST"),
+            port=conf.get("PORT"),
+            user=conf.get("USER"),
+            password=conf.get("PASSWORD"),
+            database=conf.get("DATABASE")
         )
     except:
         print("Connection to database was unsuccessful")
