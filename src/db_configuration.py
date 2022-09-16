@@ -16,7 +16,7 @@ except:
 
 cur = mydb.cursor(buffered=True, dictionary=True)
 
-cur.execute("SELECT * FROM accounts")
+cur.execute("SELECT * FROM transactions")
 
 data = cur.fetchall()
 print(data)
