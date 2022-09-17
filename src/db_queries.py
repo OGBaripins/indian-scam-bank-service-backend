@@ -57,7 +57,7 @@ def get_credentials():
 def get_transactions():
     mydb = con()
     cur = mydb.cursor(buffered=True, dictionary=True)
-    sql_post = "SELECT account_id, amount, reciver_account_number, reciver_name, transaction_date, transaction_id " \
+    sql_post = "SELECT account_id, amount, receiver_account_number, receiver_name, details, transaction_date, transaction_id " \
                "FROM transactions"
     try:
         cur.execute(sql_post)
@@ -65,7 +65,7 @@ def get_transactions():
         cur.close()
         mydb.close()
     except mysql.connector.Error as err:
-        print("Couldn't retrieve information for Credentials table\n", err)
+        print("Couldn't retrieve information for Transactions table\n", err)
 
     finally:
         return data
