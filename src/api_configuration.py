@@ -34,14 +34,15 @@ class Credentials(Resource):
         body = self.cred_reqparse.parse_args()
         return queries.add_credentials(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
 
-    def delete(self):
-        pass
-
 
 class Single_credential(Resource):
 
     def get(self, cred_id):
+        print(helpers.convert_to_json(queries.get_single_credential(cred_id)))
         return helpers.convert_to_json(queries.get_single_credential(cred_id))
+
+    def delete(self, cred_id):
+        return helpers.convert_to_json(queries.delete_credentials(cred_id))
 
 
 class Transactions(Resource):
