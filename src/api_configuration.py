@@ -1,5 +1,4 @@
 from datetime import datetime
-from flask import request
 import simplejson as json
 from decimal import Decimal
 
@@ -81,11 +80,23 @@ class TransactionsByAccNumber(Resource):
     def update(self):
         pass
 
+class InsertTransaction(Resource):
+
+    def get(self):
+        pass
+
+    def post(self, acc_id, cred_id, first_name, last_name):
+        return db_queries.insert_transaction()
+
+    def update(self):
+        pass
+
 
 api.add_resource(Credentials, "/credentials")
 api.add_resource(Transactions, "/transactions")
 api.add_resource(TransactionsByID, "/transactions/TransactionsByID/<string:trans_id>")
 api.add_resource(TransactionsByAccNumber, "/transactions/TransactionsByAccID/<string:acc_id>")
+api.add_resource(TransactionsByAccNumber, "/transactions/InsertTransaction/<string:acc_id>/<string:cred_id>/<string:first_name/<string:last_name/<string:ssn>/<string:acc_nr>")
 api.add_resource(Accounts, "/accounts")
 
 if __name__ == "__main__":

@@ -101,3 +101,23 @@ def get_transactions_by_acc_id(var):
 
     finally:
         return data
+
+
+def insert_transaction(values):
+    mydb = con()
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    sql_post = "INSERT into Transactions(account_id, amount, " \
+               "receiver_account_number, receiver_name, transaction_date, transaction_id " \
+               "VALUES %s, %s, %s, %s, %s, %s"
+
+    try:
+        cur.execute(sql_post, tuple(values))
+        data = cur.fetchall()
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for Transactions table\n", err)
+        data = {"error": f"transaction not added due to error"}
+
+    finally:
+        return {"data": "Transaction successfully inserted"}
