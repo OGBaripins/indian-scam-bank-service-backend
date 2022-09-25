@@ -3,6 +3,13 @@ from datetime import datetime
 import yaml
 
 
+def check_validation(sec_number, password, data):
+    for i in data:
+        if i.get("account_password") == password and i.get("social_security_number") == sec_number:
+            return i
+    return {"err": "There was no such account with provided password and SSN"}
+
+
 def create_conf(path, sub_directory):
     if path:
         with open(path, 'r') as stream:
