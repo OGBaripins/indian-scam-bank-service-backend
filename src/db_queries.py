@@ -34,6 +34,7 @@ def get_all_accounts():
         return data
 
 
+
 def get_account(account_id):
     mydb = con()
     cur = mydb.cursor(buffered=True, dictionary=True)
@@ -97,9 +98,66 @@ def get_credentials():
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Credentials table\n", err)
+        return {"error": "Data retrieval was unsuccessful for credential objects"}
 
     finally:
         return data
+
+
+def get_single_credential(cred_id):
+    mydb = con()
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    sql_post = "SELECT credential_id, account_password, pin_1, pin_2 FROM credentials WHERE credential_id = %s"
+    try:
+        cur.execute(sql_post, tuple(cred_id))
+        data = cur.fetchall()
+        print(len(data))
+        if len(data) == 0:
+            print("yes")
+            raise mysql.connector.Error
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for Credentials table\n", err)
+        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {cred_id}"}
+
+    finally:
+        return data
+
+
+def add_credentials(values):
+    mydb = con()
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    sql_post = ("INSERT INTO credentials (credential_id, account_password, pin_1, pin_2)"
+                "VALUES(%s, %s, %s, %s)")
+    try:
+        cur.execute(sql_post, tuple(values))
+        mydb.commit()
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for Credentials table\n", err)
+        return {"error": f"Insert was unsuccessful -> values {values}"}
+
+    finally:
+        return {"data": "Insert was successful"}
+
+
+def delete_credentials(values):
+    mydb = con()
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    sql_post = "DELETE FROM credentials WHERE credential_id = %s"
+    try:
+        cur.execute(sql_post, tuple(values))
+        mydb.commit()
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for Credentials table\n", err)
+        return {"error": f"Deletion was unsuccessful for credential object -> id = {values}"}
+
+    finally:
+        return {"data": f"Deletion was successful for credential object -> id = {values}"}
 
 
 def get_transactions():
