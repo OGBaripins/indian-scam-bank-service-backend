@@ -10,8 +10,8 @@ def con():
             password="WjRaAgGLiL",
             database="sql11520035"
         )
-    except:
-        print("Connection to database was unsuccessful")
+    except mysql.connector.Error as err:
+        print(f"Connection to database was unsuccessful\nErr: {err}")
     return mydb
 
 
@@ -112,12 +112,12 @@ def insert_transaction(values):
 
     try:
         cur.execute(sql_post, tuple(values))
-        data = cur.fetchall()
+        mydb.commit()
         cur.close()
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Transactions table\n", err)
-        data = {"error": f"transaction not added due to error"}
+        data = {"error": f"transaction not added due to error VALUES = {values}"}
 
     finally:
         return {"data": "Transaction successfully inserted"}

@@ -3,8 +3,9 @@ import simplejson as json
 from decimal import Decimal
 
 from flask import Flask
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, reqparse
 
+import etc.helpers as helpers
 import db_queries
 
 app = Flask(__name__)
@@ -46,12 +47,20 @@ class Credentials(Resource):
 
 
 class Transactions(Resource):
+    trans_reqparse: reqparse = reqparse.RequestParser()
+    trans_reqparse.add_argument("acc_id", type=int, help="ERR: account_id is a required field", required=True)
+    trans_reqparse.add_argument("cred_id", type=int, help="ERR: credential_id is a required field", required=True)
+    trans_reqparse.add_argument("first_name", type=str, help="ERR: first name is a required field", required=True)
+    trans_reqparse.add_argument("last_name", type=str, help="ERR: last name is a required field", required=True)
+    trans_reqparse.add_argument("ssn", type=int, help="ERR: security number is a required field", required=True)
+    trans_reqparse.add_argument("acc_nr", type=int, help="ERR: account number is a required field", required=True)
 
     def get(self):
-        return convert_to_json(db_queries.get_transactions())
+        return convert_to_json(queries.get_transactions())
 
     def post(self):
-        pass
+        body = self.trans_reqparse.parse_args()
+        return queries.insert_transactions(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
 
     def update(self):
         pass
@@ -63,7 +72,8 @@ class TransactionsByID(Resource):
         return convert_to_json(db_queries.get_transactions_by_id(trans_id))
 
     def post(self):
-        pass
+        body = self.cred_reqparse.parse_args()
+        return queries.add_credentials(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
 
     def update(self):
         pass
@@ -80,23 +90,11 @@ class TransactionsByAccNumber(Resource):
     def update(self):
         pass
 
-class InsertTransaction(Resource):
-
-    def get(self):
-        pass
-
-    def post(self, acc_id, cred_id, first_name, last_name):
-        return db_queries.insert_transaction()
-
-    def update(self):
-        pass
-
 
 api.add_resource(Credentials, "/credentials")
 api.add_resource(Transactions, "/transactions")
 api.add_resource(TransactionsByID, "/transactions/TransactionsByID/<string:trans_id>")
 api.add_resource(TransactionsByAccNumber, "/transactions/TransactionsByAccID/<string:acc_id>")
-api.add_resource(TransactionsByAccNumber, "/transactions/InsertTransaction/<string:acc_id>/<string:cred_id>/<string:first_name/<string:last_name/<string:ssn>/<string:acc_nr>")
 api.add_resource(Accounts, "/accounts")
 
 if __name__ == "__main__":
