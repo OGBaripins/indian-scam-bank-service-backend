@@ -1,4 +1,5 @@
 import simplejson as json
+
 from datetime import datetime
 
 import yaml
@@ -28,3 +29,4 @@ def convert_datetime_to_string(o):
 
 def from_json_to_tuple(data):
     return tuple(data.values())
+
