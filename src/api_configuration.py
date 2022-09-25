@@ -22,10 +22,7 @@ def convert_datetime_to_string(o):
 class Accounts(Resource):
 
     def get(self):
-        return convert_to_json(db_queries.get_accounts())
-
-    def get(self):
-        return convert_to_json(db_queries.get_account(account_id="1"))
+        return convert_to_json(db_queries.get_all_accounts())
 
     def post(self):
         pass
