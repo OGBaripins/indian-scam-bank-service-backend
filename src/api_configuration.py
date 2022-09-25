@@ -25,7 +25,7 @@ def myconverter(o):
 class Accounts(Resource):
 
     def get(self):
-        return convert_to_json(db_queries.get_accounts())
+        return convert_to_json(db_queries.get_all_accounts())
 
     def post(self):
         pass
@@ -96,6 +96,7 @@ api.add_resource(Transactions, "/transactions")
 api.add_resource(TransactionsByID, "/transactions/TransactionsByID/<string:trans_id>")
 api.add_resource(TransactionsByAccNumber, "/transactions/TransactionsByAccID/<string:acc_id>")
 api.add_resource(Accounts, "/accounts")
+api.add_resource(Transactions, "/transactions")
 
 if __name__ == "__main__":
     app.run(debug=True)
