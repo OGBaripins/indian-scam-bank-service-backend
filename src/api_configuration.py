@@ -3,7 +3,7 @@ import time
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
 
-import etc.helpers as helpers
+import helpers as helpers
 import db_queries as queries
 
 app = Flask(__name__)
