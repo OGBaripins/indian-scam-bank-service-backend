@@ -5,7 +5,7 @@ import helpers as helpers
 
 
 def con():
-    conf = helpers.create_conf("./conf.yaml", "DATABASE_CON")
+    conf = helpers.create_conf("./etc/conf.yaml", "DATABASE_CON")
 
     try:
         mydb = mysql.connector.connect(
