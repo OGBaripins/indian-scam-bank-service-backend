@@ -2,12 +2,15 @@ import time
 
 from flask import Flask
 from flask_restful import Api, Resource, reqparse
+from flask_cors import CORS, cross_origin
 
 import helpers as helpers
 import db_queries as queries
 
 app = Flask(__name__)
 api = Api(app)
+CORS(app)
+@app.route("/")
 
 
 class Accounts(Resource):
@@ -21,19 +24,23 @@ class Accounts(Resource):
     acc_reqparse.add_argument("account_status", type=str, help="ERR: account_status is a required field", required=True)
     acc_reqparse.add_argument("balance", type=float, help="ERR: balance is a required field", required=True)
 
+    
+    @cross_origin()
     def get(self):
         return helpers.convert_to_json(queries.get_all_accounts())
 
+    @cross_origin()
     def post(self):
         body = self.acc_reqparse.parse_args()
         return queries.post_accounts(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
 
 
 class Single_account(Resource):
-
+    @cross_origin()
     def get(self, acc_id):
         return helpers.convert_to_json(queries.get_account_by_id(acc_id))
-
+    
+    @cross_origin()
     def delete(self, acc_id):
         return helpers.convert_to_json(queries.delete_account(acc_id))
 
@@ -43,9 +50,11 @@ class Credentials(Resource):
     cred_reqparse.add_argument("account_password", type=str, help="ERR: account_password is a required field",
                                required=True)
 
+    @cross_origin()
     def get(self):
         return helpers.convert_to_json(queries.get_credentials())
 
+    @cross_origin()
     def post(self):
         body = self.cred_reqparse.parse_args()
         return queries.add_credentials(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
@@ -53,9 +62,11 @@ class Credentials(Resource):
 
 class Single_credential(Resource):
 
+    @cross_origin()
     def get(self, cred_id):
         return helpers.convert_to_json(queries.get_single_credential(cred_id))
 
+    @cross_origin()
     def delete(self, cred_id):
         return helpers.convert_to_json(queries.delete_credentials(cred_id))
 
@@ -69,42 +80,52 @@ class Transactions(Resource):
     trans_reqparse.add_argument("ssn", type=int, help="ERR: security number is a required field", required=True)
     trans_reqparse.add_argument("acc_nr", type=int, help="ERR: account number is a required field", required=True)
 
+    @cross_origin()
     def get(self):
         return helpers.convert_to_json(queries.get_transactions())
 
+    @cross_origin()
     def post(self):
         body = self.trans_reqparse.parse_args()
         return queries.insert_transaction(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
 
+    @cross_origin()
     def update(self):
         pass
 
 
 class TransactionsByID(Resource):
 
+    @cross_origin()
     def get(self, trans_id):
         return helpers.convert_to_json(queries.get_transactions_by_id(trans_id))
 
+    @cross_origin()
     def post(self):
         pass
 
+    @cross_origin()
     def update(self):
         pass
 
 
 class TransactionsByAccNumber(Resource):
 
+    @cross_origin()
     def get(self, acc_id):
         return helpers.convert_to_json(queries.get_transactions_by_acc_id(acc_id))
 
+    @cross_origin()
     def post(self):
         pass
 
+    @cross_origin()
     def update(self):
         pass
 
 
 class Validation(Resource):
+    @cross_origin()
     def get(self, sec_number, password):
         account_data = helpers.convert_to_json(queries.validation())
         acc_data = helpers.check_validation(sec_number, password, account_data)
