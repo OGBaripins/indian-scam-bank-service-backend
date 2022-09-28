@@ -262,8 +262,8 @@ def insert_transaction(values):
         return {"err": "Cant connect to the database"}
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = (
-        "insert into transactions (transaction_id, account_id, receiver_name, receiver_account_number, amount, details, transaction_date)" \
-        "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+        "insert into transactions (account_id, receiver_name, receiver_account_number, amount, details, transaction_date)" \
+        "VALUES (%s, %s, %s, %s, %s, %s)")
 
     try:
         cur.execute(sql_post, tuple(values))

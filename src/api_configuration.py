@@ -77,8 +77,6 @@ class Single_credential(Resource):
 
 class Transactions(Resource):
     trans_reqparse: reqparse = reqparse.RequestParser()
-    trans_reqparse.add_argument("transaction_id", type=int, help="ERR: account number is a required field",
-                                required=True)
     trans_reqparse.add_argument("account_id", type=int, help="ERR: account_id is a required field", required=True)
     trans_reqparse.add_argument("receiver_name", type=str, help="ERR: last name is a required field", required=True)
     trans_reqparse.add_argument("receiver_account_number", type=str,
