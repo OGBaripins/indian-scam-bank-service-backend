@@ -4,9 +4,12 @@ from mysql.connector import MySQLConnection
 import helpers as helpers
 
 
+
 def con():
-    # Use two dots in the path while using pyCharm!
-    conf = helpers.create_conf("../etc/conf.yaml", "DATABASE_CON")
+    try:
+        conf = helpers.create_conf("../etc/conf.yaml", "DATABASE_CON")
+    except:
+        conf = helpers.create_conf("./etc/conf.yaml", "DATABASE_CON")
 
     try:
         mydb = mysql.connector.connect(
@@ -21,6 +24,7 @@ def con():
         return {"err": "Cant connect to the database"}
     return mydb
 
+con()
 
 # Methods of queries and executions
 def get_all_accounts():
