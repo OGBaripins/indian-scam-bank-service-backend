@@ -252,13 +252,14 @@ def get_transactions_by_acc_id(var):
 
 
 def insert_transaction(values):
+    data = {"error": f"transaction successfully added VALUES = {values}"}
     mydb = con()
-    if isinstance(mydb, dict):
-        return mydb  # <- In here is an error message
+    if not mydb:
+        return {"err": "Cant connect to the database"}
     cur = mydb.cursor(buffered=True, dictionary=True)
-    sql_post = "INSERT into Transactions(account_id, amount, " \
-               "receiver_account_number, receiver_name, transaction_date, transaction_id " \
-               "VALUES %s, %s, %s, %s, %s, %s"
+    sql_post = (
+        "insert into transactions (transaction_id, account_id, receiver_name, receiver_account_number, amount, details, transaction_date)" \
+        "VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
     try:
         cur.execute(sql_post, tuple(values))
@@ -270,8 +271,29 @@ def insert_transaction(values):
         data = {"error": f"transaction not added due to error VALUES = {values}"}
 
     finally:
-        return {"data": "Transaction successfully inserted"}
+        return data
 
+
+def delete_transaction(values):
+    data = {"data": f"Deletion successful for -> id = {values}"}
+    mydb = con()
+    if not mydb:
+        return {"err": "Cant connect to the database"}
+
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    sql_post = "DELETE FROM transactions WHERE transaction_id = %s"
+    try:
+        cur.execute(sql_post,tuple(values))
+        mydb.commit()
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for Transactions table\n", err)
+        data = {"error": f"Deletion was unsuccessful for transactions object -> id = {values}"}
+        return data
+
+    finally:
+        return data
 
 def validation():
     mydb = con()
