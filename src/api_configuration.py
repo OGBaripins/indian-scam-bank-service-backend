@@ -77,12 +77,15 @@ class Single_credential(Resource):
 
 class Transactions(Resource):
     trans_reqparse: reqparse = reqparse.RequestParser()
-    trans_reqparse.add_argument("acc_id", type=int, help="ERR: account_id is a required field", required=True)
-    trans_reqparse.add_argument("cred_id", type=int, help="ERR: credential_id is a required field", required=True)
-    trans_reqparse.add_argument("first_name", type=str, help="ERR: first name is a required field", required=True)
-    trans_reqparse.add_argument("last_name", type=str, help="ERR: last name is a required field", required=True)
-    trans_reqparse.add_argument("ssn", type=int, help="ERR: security number is a required field", required=True)
-    trans_reqparse.add_argument("acc_nr", type=int, help="ERR: account number is a required field", required=True)
+    trans_reqparse.add_argument("transaction_id", type=int, help="ERR: account number is a required field",
+                                required=True)
+    trans_reqparse.add_argument("account_id", type=int, help="ERR: account_id is a required field", required=True)
+    trans_reqparse.add_argument("receiver_name", type=str, help="ERR: last name is a required field", required=True)
+    trans_reqparse.add_argument("receiver_account_number", type=str,
+                                help="ERR: receiver_account_number is a required field", required=True)
+    trans_reqparse.add_argument("amount", type=float, help="ERR: credential_id is a required field", required=True)
+    trans_reqparse.add_argument("details", type=str, help="ERR: credential_id is a required field", required=False)
+    trans_reqparse.add_argument("transaction_date", type=str, help="ERR: last name is a required field", required=True)
 
     @cross_origin()
     def get(self):
@@ -105,12 +108,8 @@ class TransactionsByID(Resource):
         return helpers.convert_to_json(queries.get_transactions_by_id(trans_id))
 
     @cross_origin()
-    def post(self):
-        pass
-
-    @cross_origin()
-    def update(self):
-        pass
+    def delete(self, trans_id):
+        return helpers.convert_to_json(queries.delete_transaction(trans_id))
 
 
 class TransactionsByAccNumber(Resource):
