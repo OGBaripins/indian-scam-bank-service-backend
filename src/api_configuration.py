@@ -7,6 +7,11 @@ from flask_cors import CORS, cross_origin
 import helpers as helpers
 import db_queries as queries
 
+## WARNING =====================================================================
+## FOR MODULE INSTALLATION PLEASE USE THE FOLLOWING COMMAND IN YOUR TERMINAL
+## pip install -r etc/requirements.txt
+## =============================================================================
+
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
