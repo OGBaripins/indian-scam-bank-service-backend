@@ -6,6 +6,9 @@ from flask_cors import CORS, cross_origin
 
 import helpers as helpers
 import db_queries as queries
+import requests
+
+BASE = "http://127.0.0.1:5000/"
 
 ## WARNING =====================================================================
 ## FOR MODULE INSTALLATION PLEASE USE THE FOLLOWING COMMAND IN YOUR TERMINAL
@@ -40,6 +43,10 @@ class Accounts(Resource):
 
 
 class Single_account(Resource):
+    acc_reqparse: reqparse = reqparse.RequestParser()
+    acc_reqparse.add_argument("balance", type=float, help="ERR: balance is a required field", required=True)
+    acc_reqparse.add_argument("id", type=str, help="ERR: account_number is a required field", required=True)
+
     @cross_origin()
     def get(self, acc_id):
         return helpers.convert_to_json(queries.get_account_by_id(acc_id))
@@ -47,6 +54,23 @@ class Single_account(Resource):
     @cross_origin()
     def delete(self, acc_id):
         return helpers.convert_to_json(queries.delete_account(acc_id))
+
+
+class Patch_account(Resource):
+    acc_reqparse: reqparse = reqparse.RequestParser()
+    acc_reqparse.add_argument("balance", type=float, help="ERR: balance is a required field", required=True)
+    acc_reqparse.add_argument("id", type=str, help="ERR: account_number is a required field", required=True)
+
+    @cross_origin()
+    def patch(self):
+        body = self.acc_reqparse.parse_args()
+        return helpers.convert_to_json(queries.update_balance(body["id"], body["balance"]))
+
+
+class Single_account_nr(Resource):
+    @cross_origin()
+    def get(self, acc_nr):
+        return helpers.convert_to_json(queries.get_account_balance_from_nr(acc_nr))
 
 
 class Credentials(Resource):
@@ -92,11 +116,19 @@ class Transactions(Resource):
     @cross_origin()
     def post(self):
         body = self.trans_reqparse.parse_args()
-        return queries.insert_transaction(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
-
-    @cross_origin()
-    def update(self):
-        pass
+        bal = requests.get(f"{BASE}accounts/{str(body.get('account_id'))}")
+        requests.patch(f"{BASE}accounts",
+                       json={
+                           'balance': float(bal.json()[0].get('balance')) - float(body.get("amount")),
+                           'id': body.get("account_id")
+                       })
+        bal = requests.get(f"{BASE}accounts_nr/{body.get('receiver_account_number')}")
+        requests.patch(f"{BASE}accounts",
+                       json={
+                           'balance': float(bal.json()[0].get('balance')) + float(body.get("amount")),
+                           'id': body.get("receiver_account_number")
+                       })
+        return queries.add_transactions(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
 
 
 class TransactionsByID(Resource):
@@ -116,14 +148,6 @@ class TransactionsByAccNumber(Resource):
     def get(self, acc_id):
         return helpers.convert_to_json(queries.get_transactions_by_acc_id(acc_id))
 
-    @cross_origin()
-    def post(self):
-        pass
-
-    @cross_origin()
-    def update(self):
-        pass
-
 
 class Validation(Resource):
     @cross_origin()
@@ -139,16 +163,18 @@ class Validation(Resource):
 
 
 api.add_resource(Accounts, "/accounts")
+api.add_resource(Patch_account, "/accounts")
 api.add_resource(Single_account, "/accounts/<string:acc_id>")
+api.add_resource(Single_account_nr, "/accounts_nr/<string:acc_nr>")
 
 api.add_resource(Credentials, "/credentials")
 api.add_resource(Single_credential, "/credentials/<string:cred_id>")
 
 api.add_resource(Transactions, "/transactions")
-api.add_resource(TransactionsByID, "/transactions/TransactionsByID/<string:trans_id>")
-api.add_resource(TransactionsByAccNumber, "/transactions/TransactionsByAccID/<string:acc_id>")
+api.add_resource(TransactionsByID, "/transactions/<string:trans_id>")
+api.add_resource(TransactionsByAccNumber, "/transactions_acc_id/<string:acc_id>")
 
 api.add_resource(Validation, "/validation/<string:sec_number>/<string:password>")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    pass

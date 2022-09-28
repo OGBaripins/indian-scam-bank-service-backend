@@ -4,7 +4,6 @@ from mysql.connector import MySQLConnection
 import helpers as helpers
 
 
-
 def con():
     try:
         conf = helpers.create_conf("../etc/conf.yaml", "DATABASE_CON")
@@ -24,7 +23,9 @@ def con():
         return {"err": "Cant connect to the database"}
     return mydb
 
+
 con()
+
 
 # Methods of queries and executions
 def get_all_accounts():
@@ -58,7 +59,6 @@ def get_account_by_id(account_id):
     try:
         cur.execute(sql_post, tuple(account_id))
         data = cur.fetchall()
-        print(len(data))
         if len(data) == 0:
             raise mysql.connector.Error
         cur.close()
@@ -139,9 +139,7 @@ def get_single_credential(cred_id):
     try:
         cur.execute(sql_post, tuple(cred_id))
         data = cur.fetchall()
-        print(len(data))
         if len(data) == 0:
-            print("yes")
             raise mysql.connector.Error
         cur.close()
         mydb.close()
@@ -261,9 +259,8 @@ def get_account_bal(arg):
         return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     try:
-        cur.execute('SELECT balance FROM accounts WHERE account_id = \'{}\''.format(arg))
+        cur.execute(f'SELECT balance FROM accounts WHERE account_id = {arg}')
         data = cur.fetchone()
-        print(len(data))
         if len(data) == 0:
             raise mysql.connector.Error
         cur.close()
@@ -276,84 +273,21 @@ def get_account_bal(arg):
         return data
 
 
-def get_account_idFromNr(arg):
+def get_account_balance_from_nr(arg):
     mydb = con()
     if isinstance(mydb, dict):
         return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     try:
-        cur.execute('SELECT account_id FROM accounts WHERE account_number = \'{}\''.format(arg))
-        data = cur.fetchone()
-        print(len(data))
-        if len(data) == 0:
-            raise mysql.connector.Error
-        cur.close()
-        mydb.close()
-    except mysql.connector.Error as err:
-        print("Couldn't retrieve information for accounts table\n", err)
-        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {arg}"}
-
-    finally:
-        return data
-
-
-def updateBal(values):
-    data = {"error": f"SUCCESS for credential object -> id {values}"}
-    mydb = con()
-    if isinstance(mydb, dict):
-        return mydb  # <- In here is an error message
-    cur = mydb.cursor(buffered=True, dictionary=True)
-    try:
-        print(values)
-        sql_post = "UPDATE accounts SET balance = %s WHERE account_id = %s"
-        cur.execute(sql_post, values)
+        cur.execute(f"SELECT balance FROM accounts WHERE account_number = '{arg}'")
         data = cur.fetchall()
-        print(len(data))
         if len(data) == 0:
             raise mysql.connector.Error
         cur.close()
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for accounts table\n", err)
-        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {values}"}
-
-    finally:
-        return data
-
-
-def insert_transaction(values):
-    data = {"error": f"transaction successfully added VALUES = {values}"}
-    mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
-    cur = mydb.cursor(buffered=True, dictionary=True)
-    sql_post = (
-        "insert into transactions (account_id, receiver_name, receiver_account_number, amount, details, transaction_date)" \
-        "VALUES (%s, %s, %s, %s, %s, %s)")
-    sentAmount = values[3]
-    senderID = values[0]
-    senderBal = helpers.from_json_to_tuple(get_account_bal(senderID))
-    print(helpers.from_json_to_tuple(get_account_bal(senderID)))
-    receiverID = helpers.from_json_to_tuple(get_account_idFromNr(values[2]))
-    receiverBal = helpers.from_json_to_tuple(get_account_bal(receiverID[0]))
-    print("Sender balance before update is " + str(senderBal[0]))
-    print("Receiver balance before update is " + str(receiverBal[0]))
-    add = float(senderBal[0]) - sentAmount
-    take = float(receiverBal[0]) + sentAmount
-    nice1 = (add, senderID)
-    nice2 = (take, receiverID)
-    updateBal(nice1)
-    updateBal(nice2)
-    print("Sender balance after update is " + str(senderBal[0]))
-    print("Receiver balance after update is " + str(receiverBal[0]))
-    try:
-        cur.execute(sql_post, tuple(values))
-        mydb.commit()
-        cur.close()
-        mydb.close()
-    except mysql.connector.Error as err:
-        print("Couldn't retrieve information for Transactions table\n", err)
-        data = {"error": f"transaction not added due to error VALUES = {values}"}
+        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {arg}"}
 
     finally:
         return data
@@ -368,7 +302,7 @@ def delete_transaction(values):
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "DELETE FROM transactions WHERE transaction_id = %s"
     try:
-        cur.execute(sql_post,tuple(values))
+        cur.execute(sql_post, tuple(values))
         mydb.commit()
         cur.close()
         mydb.close()
@@ -379,6 +313,52 @@ def delete_transaction(values):
 
     finally:
         return data
+
+
+def add_transactions(values):
+    mydb = con()
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    sql_post = "INSERT INTO transactions (account_id, amount, details, receiver_name, receiver_account_number,  " \
+               "transaction_date)" \
+               "VALUES (%s, %s, %s, %s, %s, %s)"
+    try:
+        cur.execute(sql_post, tuple(values))
+        mydb.commit()
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for Credentials table\n", err)
+        return {"error": f"Insert was unsuccessful -> values {values}"}
+
+    finally:
+        return {"data": "Insert was successful"}
+
+
+def update_balance(identifier, value):
+    is_account_number = False
+    mydb = con()
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    if identifier.lower().startswith('isbs'):
+        is_account_number = True
+        identifier = f"'{identifier}'"
+    sql_post = f"UPDATE accounts SET balance = {'%.2f' % value} " \
+               f"WHERE {'account_number' if is_account_number else 'account_id'}={identifier}"
+    try:
+        cur.execute(sql_post)
+        mydb.commit()
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for Credentials table\n", err)
+        # return {"error": f"Insert was unsuccessful -> values {values}"}
+
+    finally:
+        return {"data": "Insert was successful"}
+
 
 def validation():
     mydb = con()
@@ -397,3 +377,7 @@ def validation():
         data = {"error": f"Credentials checking was unsuccessful"}
     finally:
         return data
+
+
+if __name__ == "__main__":
+    pass
