@@ -5,6 +5,7 @@ import helpers as helpers
 
 
 def con():
+    # if two dots in path, remove one.
     conf = helpers.create_conf("./etc/conf.yaml", "DATABASE_CON")
 
     try:
@@ -17,15 +18,13 @@ def con():
         )
     except mysql.connector.Error as err:
         print(f"Connection to database was unsuccessful\nErr: {err}")
-        return False
+        return
     return mydb
 
 
 # Methods of queries and executions
 def get_all_accounts():
     mydb = con()
-    ##if not isinstance(mydb, MySQLConnection):           // what is this and why is it only here?
-    ##    return {"err": "Cant connect to the database"}
     if not mydb:
         return {"err": "Cant connect to the database"}
 

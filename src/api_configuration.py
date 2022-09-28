@@ -10,9 +10,9 @@ import db_queries as queries
 app = Flask(__name__)
 api = Api(app)
 CORS(app)
+
+
 @app.route("/")
-
-
 class Accounts(Resource):
     acc_reqparse: reqparse = reqparse.RequestParser()
     acc_reqparse.add_argument("credential_id", type=int, help="ERR: credential_id is a required field", required=True)
@@ -24,7 +24,6 @@ class Accounts(Resource):
     acc_reqparse.add_argument("account_status", type=str, help="ERR: account_status is a required field", required=True)
     acc_reqparse.add_argument("balance", type=float, help="ERR: balance is a required field", required=True)
 
-    
     @cross_origin()
     def get(self):
         return helpers.convert_to_json(queries.get_all_accounts())
@@ -39,7 +38,7 @@ class Single_account(Resource):
     @cross_origin()
     def get(self, acc_id):
         return helpers.convert_to_json(queries.get_account_by_id(acc_id))
-    
+
     @cross_origin()
     def delete(self, acc_id):
         return helpers.convert_to_json(queries.delete_account(acc_id))
@@ -128,10 +127,12 @@ class Validation(Resource):
     @cross_origin()
     def get(self, sec_number, password):
         account_data = helpers.convert_to_json(queries.validation())
+        if "err" in account_data.keys():
+            return account_data, 404
         acc_data = helpers.check_validation(sec_number, password, account_data)
         if "err" in acc_data.keys():
             return account_data, 404
-        
+
         return helpers.convert_to_json(queries.get_account_by_id(str(acc_data.get("account_id"))))
 
 
