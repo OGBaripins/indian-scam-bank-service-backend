@@ -255,6 +255,72 @@ def get_transactions_by_acc_id(var):
         return data
 
 
+def get_account_bal(arg):
+    mydb = con()
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    try:
+        cur.execute('SELECT balance FROM accounts WHERE account_id = \'{}\''.format(arg))
+        data = cur.fetchone()
+        print(len(data))
+        if len(data) == 0:
+            raise mysql.connector.Error
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for accounts table\n", err)
+        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {arg}"}
+
+    finally:
+        return data
+
+
+def get_account_idFromNr(arg):
+    mydb = con()
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    try:
+        cur.execute('SELECT account_id FROM accounts WHERE account_number = \'{}\''.format(arg))
+        data = cur.fetchone()
+        print(len(data))
+        if len(data) == 0:
+            raise mysql.connector.Error
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for accounts table\n", err)
+        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {arg}"}
+
+    finally:
+        return data
+
+
+def updateBal(values):
+    data = {"error": f"SUCCESS for credential object -> id {values}"}
+    mydb = con()
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
+    cur = mydb.cursor(buffered=True, dictionary=True)
+    try:
+        print(values)
+        sql_post = "UPDATE accounts SET balance = %s WHERE account_id = %s"
+        cur.execute(sql_post, values)
+        data = cur.fetchall()
+        print(len(data))
+        if len(data) == 0:
+            raise mysql.connector.Error
+        cur.close()
+        mydb.close()
+    except mysql.connector.Error as err:
+        print("Couldn't retrieve information for accounts table\n", err)
+        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {values}"}
+
+    finally:
+        return data
+
+
 def insert_transaction(values):
     data = {"error": f"transaction successfully added VALUES = {values}"}
     mydb = con()
@@ -264,7 +330,22 @@ def insert_transaction(values):
     sql_post = (
         "insert into transactions (account_id, receiver_name, receiver_account_number, amount, details, transaction_date)" \
         "VALUES (%s, %s, %s, %s, %s, %s)")
-
+    sentAmount = values[3]
+    senderID = values[0]
+    senderBal = helpers.from_json_to_tuple(get_account_bal(senderID))
+    print(helpers.from_json_to_tuple(get_account_bal(senderID)))
+    receiverID = helpers.from_json_to_tuple(get_account_idFromNr(values[2]))
+    receiverBal = helpers.from_json_to_tuple(get_account_bal(receiverID[0]))
+    print("Sender balance before update is " + str(senderBal[0]))
+    print("Receiver balance before update is " + str(receiverBal[0]))
+    add = float(senderBal[0]) - sentAmount
+    take = float(receiverBal[0]) + sentAmount
+    nice1 = (add, senderID)
+    nice2 = (take, receiverID)
+    updateBal(nice1)
+    updateBal(nice2)
+    print("Sender balance after update is " + str(senderBal[0]))
+    print("Receiver balance after update is " + str(receiverBal[0]))
     try:
         cur.execute(sql_post, tuple(values))
         mydb.commit()
