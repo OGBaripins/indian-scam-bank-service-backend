@@ -5,8 +5,8 @@ import helpers as helpers
 
 
 def con():
-    # if two dots in path, remove one.
-    conf = helpers.create_conf("./etc/conf.yaml", "DATABASE_CON")
+    # Use two dots in the path while using pyCharm!
+    conf = helpers.create_conf("../etc/conf.yaml", "DATABASE_CON")
 
     try:
         mydb = mysql.connector.connect(
@@ -16,17 +16,17 @@ def con():
             password=conf.get("PASSWORD"),
             database=conf.get("DATABASE")
         )
-    except mysql.connector.Error as err:
+    except Exception as err:
         print(f"Connection to database was unsuccessful\nErr: {err}")
-        return
+        return {"err": "Cant connect to the database"}
     return mydb
 
 
 # Methods of queries and executions
 def get_all_accounts():
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
 
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = ("SELECT account_id, credential_id, first_name, last_name, social_security_number, "
@@ -38,6 +38,7 @@ def get_all_accounts():
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Accounts table\n", err)
+        data = {"error": "Data retrieval was unsuccessful for account object"}
 
     finally:
         return data
@@ -45,8 +46,8 @@ def get_all_accounts():
 
 def get_account_by_id(account_id):
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = ("SELECT account_id, credential_id, first_name, last_name, social_security_number, "
                 "account_number, account_status, balance FROM accounts WHERE account_id = %s")
@@ -68,8 +69,8 @@ def get_account_by_id(account_id):
 
 def post_accounts(values):
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = ("INSERT INTO accounts (credential_id, first_name, last_name, social_security_number, "
                 "account_number, account_status, balance) VALUES (%s, %s, %s, %s, %s, %s, %s)")
@@ -88,8 +89,8 @@ def post_accounts(values):
 
 def delete_account(account_id):
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
 
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "DELETE FROM accounts WHERE account_id = %s"
@@ -108,8 +109,8 @@ def delete_account(account_id):
 
 def get_credentials():
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "SELECT credential_id, account_password FROM credentials"
     try:
@@ -127,8 +128,8 @@ def get_credentials():
 
 def get_single_credential(cred_id):
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "SELECT credential_id, account_password FROM credentials WHERE credential_id = %s"
     try:
@@ -150,8 +151,8 @@ def get_single_credential(cred_id):
 
 def add_credentials(values):
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = ("INSERT INTO credentials (account_password)"
                 "VALUES(%s)")
@@ -170,8 +171,8 @@ def add_credentials(values):
 
 def delete_credentials(values):
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "DELETE FROM credentials WHERE credential_id = %s"
     try:
@@ -189,8 +190,8 @@ def delete_credentials(values):
 
 def get_transactions():
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
 
     sql_post = "SELECT account_id, amount, receiver_account_number, receiver_name, details, transaction_date, " \
@@ -204,15 +205,14 @@ def get_transactions():
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Transactions table\n", err)
 
-
     finally:
         return data
 
 
 def get_transactions_by_id(var):
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "SELECT account_id, amount, receiver_account_number, receiver_name, transaction_date, transaction_id " \
                "FROM transactions WHERE transaction_id = %s"
@@ -233,8 +233,8 @@ def get_transactions_by_id(var):
 
 def get_transactions_by_acc_id(var):
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "SELECT account_id, amount, receiver_account_number, receiver_name, transaction_date, transaction_id " \
                "FROM transactions WHERE account_id = %s"
@@ -253,8 +253,8 @@ def get_transactions_by_acc_id(var):
 
 def insert_transaction(values):
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "INSERT into Transactions(account_id, amount, " \
                "receiver_account_number, receiver_name, transaction_date, transaction_id " \
@@ -275,8 +275,8 @@ def insert_transaction(values):
 
 def validation():
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "SELECT credentials.account_password, accounts.social_security_number, accounts.account_id FROM " \
                "accounts RIGHT JOIN " \
@@ -287,6 +287,6 @@ def validation():
         cur.close()
         mydb.close()
     except mysql.connector.Error as err:
-        pass
+        data = {"error": f"Credentials checking was unsuccessful"}
     finally:
         return data

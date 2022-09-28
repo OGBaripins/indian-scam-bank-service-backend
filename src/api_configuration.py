@@ -127,7 +127,7 @@ class Validation(Resource):
     @cross_origin()
     def get(self, sec_number, password):
         account_data = helpers.convert_to_json(queries.validation())
-        if "err" in account_data.keys():
+        if isinstance(account_data, dict) and "err" in account_data.keys():
             return account_data, 404
         acc_data = helpers.check_validation(sec_number, password, account_data)
         if "err" in acc_data.keys():
