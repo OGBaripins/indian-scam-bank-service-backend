@@ -7,7 +7,7 @@ Required Python packages and their use in the back-end of this project:
 - PyYaml - Config file creation 
 - Simplejson - Json encoding and decoding 
 
-**Transactions endpoints:**
+>**Transactions endpoints:**
 
 **GET** /transactions - returns full transactions table from database
 
@@ -26,7 +26,7 @@ Required Python packages and their use in the back-end of this project:
 **DELETE** /transactions_acc_id/ - deletes single transaction from database, arguments :
 1. transaction_id, type=int, required=True
 
-**Accounts endpoints:**
+>**Accounts endpoints:**
 
 **GET** /accounts - returns full accounts table from database
 
@@ -53,20 +53,20 @@ Required Python packages and their use in the back-end of this project:
 **PATCH** /accounts/ - called during insertion in the transactions table, to update balances of accounts, arguments:
 1. balance, type=float, required=True
 2. id, type=int, required=True
-
-
-
-**Credentials endpoints:**
+>**Credentials endpoints:**
 
 **GET** /credentials - returns full credentials table from database
 
 **GET** /credentials/ - returns single credentials row from database, arguments:
 1. credentials_id, type=int, required=True
 
-**Validation endpoints:**
+>**Validation endpoints:**
 
-**GET** /validation/ - returns single account from accounts database, validating login
+**GET** /validation/ :
+returns single account from accounts database, validating login
 
+
+: definition
 
 
 
