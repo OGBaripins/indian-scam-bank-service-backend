@@ -117,6 +117,8 @@ class Transactions(Resource):
     def post(self):
         body = self.trans_reqparse.parse_args()
         bal = requests.get(f"{BASE}accounts/{str(body.get('account_id'))}")
+        if bal.json()[0].get('balance') < float(body.get("amount")):
+            return {"error": f"Sender account does not have enough funds"}
         requests.patch(f"{BASE}accounts",
                        json={
                            'balance': float(bal.json()[0].get('balance')) - float(body.get("amount")),
