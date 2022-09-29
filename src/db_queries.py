@@ -213,10 +213,12 @@ def get_single_transaction_by_id(var):
         return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "SELECT account_id, amount, receiver_account_number, receiver_name, transaction_date, transaction_id " \
-               "FROM transactions WHERE transaction_id = %s"
+               f"FROM transactions WHERE transaction_id = {var}"
     try:
-        cur.execute(sql_post, tuple(var))
+        cur.execute(sql_post)
         data = cur.fetchall()
+        if len(data) == 0:
+            raise mysql.connector.Error
         cur.close()
         mydb.close()
 
