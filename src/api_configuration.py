@@ -34,12 +34,12 @@ class Accounts(Resource):
 
     @cross_origin()
     def get(self):
-        return helpers.convert_to_json(queries.get_all_accounts())
+        return helpers.convert_to_json(queries.get_accounts())
 
     @cross_origin()
     def post(self):
         body = self.acc_reqparse.parse_args()
-        return queries.post_accounts(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
+        return queries.add_accounts(helpers.from_json_to_tuple(helpers.convert_to_json(body)))
 
 
 class Single_account(Resource):
@@ -64,13 +64,13 @@ class Patch_account(Resource):
     @cross_origin()
     def patch(self):
         body = self.acc_reqparse.parse_args()
-        return helpers.convert_to_json(queries.update_balance(body["id"], body["balance"]))
+        return helpers.convert_to_json(queries.patch_balance(body["id"], body["balance"]))
 
 
 class Single_account_nr(Resource):
     @cross_origin()
     def get(self, acc_nr):
-        return helpers.convert_to_json(queries.get_account_balance_from_nr(acc_nr))
+        return helpers.convert_to_json(queries.get_account_balance_from_acc_nr(acc_nr))
 
 
 class Credentials(Resource):
@@ -92,7 +92,7 @@ class Single_credential(Resource):
 
     @cross_origin()
     def get(self, cred_id):
-        return helpers.convert_to_json(queries.get_single_credential(cred_id))
+        return helpers.convert_to_json(queries.get_single_credential_by_id(cred_id))
 
     @cross_origin()
     def delete(self, cred_id):
@@ -135,7 +135,7 @@ class TransactionsByID(Resource):
 
     @cross_origin()
     def get(self, trans_id):
-        return helpers.convert_to_json(queries.get_transactions_by_id(trans_id))
+        return helpers.convert_to_json(queries.get_single_transaction_by_id(trans_id))
 
     @cross_origin()
     def delete(self, trans_id):
@@ -146,7 +146,7 @@ class TransactionsByAccNumber(Resource):
 
     @cross_origin()
     def get(self, acc_id):
-        return helpers.convert_to_json(queries.get_transactions_by_acc_id(acc_id))
+        return helpers.convert_to_json(queries.get_single_transactions_by_acc_id(acc_id))
 
 
 class Validation(Resource):

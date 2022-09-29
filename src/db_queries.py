@@ -1,13 +1,11 @@
 import mysql.connector
-from mysql.connector import MySQLConnection
-
 import helpers as helpers
 
 
 def con():
     try:
         conf = helpers.create_conf("../etc/conf.yaml", "DATABASE_CON")
-    except:
+    except FileNotFoundError:
         conf = helpers.create_conf("./etc/conf.yaml", "DATABASE_CON")
 
     try:
@@ -28,7 +26,7 @@ con()
 
 
 # Methods of queries and executions
-def get_all_accounts():
+def get_accounts():
     mydb = con()
     if isinstance(mydb, dict):
         return mydb  # <- In here is an error message
@@ -43,10 +41,9 @@ def get_all_accounts():
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Accounts table\n", err)
-        data = {"error": "Data retrieval was unsuccessful for account object"}
+        data = {"error": "Data retrieval was unsuccessful for account objects"}
 
-    finally:
-        return data
+    return data
 
 
 def get_account_by_id(account_id):
@@ -65,13 +62,12 @@ def get_account_by_id(account_id):
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Credentials table\n", err)
-        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {account_id}"}
+        data = {"error": f"Data retrieval was unsuccessful for account object -> id {account_id}"}
 
-    finally:
-        return data
+    return data
 
 
-def post_accounts(values):
+def add_accounts(values):
     mydb = con()
     if isinstance(mydb, dict):
         return mydb  # <- In here is an error message
@@ -85,7 +81,7 @@ def post_accounts(values):
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't insert data into Accounts table\n", err)
-        return {"error": f"Insert was unsuccessful -> values {values}"}
+        return {"error": f"Insert was unsuccessful for account object -> values {values}"}
 
     finally:
         return {"data": "Insert was successful"}
@@ -124,13 +120,13 @@ def get_credentials():
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Credentials table\n", err)
-        return {"error": "Data retrieval was unsuccessful for credential objects"}
+        data = {"error": "Data retrieval was unsuccessful for credential objects"}
 
     finally:
         return data
 
 
-def get_single_credential(cred_id):
+def get_single_credential_by_id(cred_id):
     mydb = con()
     if isinstance(mydb, dict):
         return mydb  # <- In here is an error message
@@ -165,7 +161,7 @@ def add_credentials(values):
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Credentials table\n", err)
-        return {"error": f"Insert was unsuccessful -> values {values}"}
+        return {"error": "Insert was unsuccessful for credential object"}
 
     finally:
         return {"data": "Insert was successful"}
@@ -206,12 +202,12 @@ def get_transactions():
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Transactions table\n", err)
-
+        data = {"error": "Data retrieval was unsuccessful for transaction objects"}
     finally:
         return data
 
 
-def get_transactions_by_id(var):
+def get_single_transaction_by_id(var):
     mydb = con()
     if isinstance(mydb, dict):
         return mydb  # <- In here is an error message
@@ -226,14 +222,13 @@ def get_transactions_by_id(var):
 
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Transactions table\n", err)
-        data = {"error": f"data retrieval unsuccessful for passed transaction ID", "passedArg": var}
-
+        data = {"error": f"Data retrieval unsuccessful for transaction object, values -> {var}"}
 
     finally:
         return data
 
 
-def get_transactions_by_acc_id(var):
+def get_single_transactions_by_acc_id(var):
     mydb = con()
     if isinstance(mydb, dict):
         return mydb  # <- In here is an error message
@@ -247,33 +242,13 @@ def get_transactions_by_acc_id(var):
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for Transactions table\n", err)
-        data = {"error": f"data retrieval unsuccessful for passed account number", "passedArg": var}
+        data = {"error": f"Data retrieval unsuccessful for transaction object, values -> {var}"}
 
     finally:
         return data
 
 
-def get_account_bal(arg):
-    mydb = con()
-    if isinstance(mydb, dict):
-        return mydb  # <- In here is an error message
-    cur = mydb.cursor(buffered=True, dictionary=True)
-    try:
-        cur.execute(f'SELECT balance FROM accounts WHERE account_id = {arg}')
-        data = cur.fetchone()
-        if len(data) == 0:
-            raise mysql.connector.Error
-        cur.close()
-        mydb.close()
-    except mysql.connector.Error as err:
-        print("Couldn't retrieve information for accounts table\n", err)
-        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {arg}"}
-
-    finally:
-        return data
-
-
-def get_account_balance_from_nr(arg):
+def get_account_balance_from_acc_nr(arg):
     mydb = con()
     if isinstance(mydb, dict):
         return mydb  # <- In here is an error message
@@ -287,7 +262,7 @@ def get_account_balance_from_nr(arg):
         mydb.close()
     except mysql.connector.Error as err:
         print("Couldn't retrieve information for accounts table\n", err)
-        data = {"error": f"Data retrieval was unsuccessful for credential object -> id {arg}"}
+        data = {"error": f"Data retrieval was unsuccessful for accounts object, account_id -> {arg}"}
 
     finally:
         return data
@@ -296,8 +271,8 @@ def get_account_balance_from_nr(arg):
 def delete_transaction(values):
     data = {"data": f"Deletion successful for -> id = {values}"}
     mydb = con()
-    if not mydb:
-        return {"err": "Cant connect to the database"}
+    if isinstance(mydb, dict):
+        return mydb  # <- In here is an error message
 
     cur = mydb.cursor(buffered=True, dictionary=True)
     sql_post = "DELETE FROM transactions WHERE transaction_id = %s"
@@ -336,7 +311,7 @@ def add_transactions(values):
         return {"data": "Insert was successful"}
 
 
-def update_balance(identifier, value):
+def patch_balance(identifier, value):
     is_account_number = False
     mydb = con()
     if isinstance(mydb, dict):
@@ -353,8 +328,8 @@ def update_balance(identifier, value):
         cur.close()
         mydb.close()
     except mysql.connector.Error as err:
-        print("Couldn't retrieve information for Credentials table\n", err)
-        # return {"error": f"Insert was unsuccessful -> values {values}"}
+        print("Balance Update was unsuccessful\n", err)
+        return {"error": f"Balance Update was unsuccessful for account with identifier -> {identifier}"}
 
     finally:
         return {"data": "Insert was successful"}
@@ -374,6 +349,7 @@ def validation():
         cur.close()
         mydb.close()
     except mysql.connector.Error as err:
+        print("Validation was unsuccessful\n", err)
         data = {"error": f"Credentials checking was unsuccessful"}
     finally:
         return data
