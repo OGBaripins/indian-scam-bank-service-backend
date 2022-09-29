@@ -192,7 +192,7 @@ def get_transactions():
         return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
 
-    sql_post = "SELECT account_id, amount, receiver_account_number, receiver_name, details, transaction_date, " \
+    sql_post = "SELECT account_id, amount, details, receiver_account_number, receiver_name, transaction_date, " \
                "transaction_id " \
                "FROM transactions"
     try:
@@ -297,7 +297,7 @@ def add_transactions(values):
     if isinstance(mydb, dict):
         return mydb  # <- In here is an error message
     cur = mydb.cursor(buffered=True, dictionary=True)
-    sql_post = "INSERT INTO transactions (account_id, amount, details, receiver_name, receiver_account_number,  " \
+    sql_post = "INSERT INTO transactions (account_id, receiver_name, receiver_account_number, amount, details," \
                "transaction_date)" \
                "VALUES (%s, %s, %s, %s, %s, %s)"
     try:
