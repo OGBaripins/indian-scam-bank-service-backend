@@ -1,4 +1,4 @@
-`Required Python packages and their use in the back-end of this project:`
+## Required Python packages and their use in the back-end of this project:
 - Flask - Web application framework
 - Flask _restful - Creates restful API connectivity 
 - Flask_cors - Used to make the website available on all browsers 
@@ -7,65 +7,102 @@
 - PyYaml - Config file creation 
 - Simplejson - Json encoding and decoding 
 
->**Transactions endpoints**
+## Transactions endpoints
 
-**GET** /transactions - returns full transactions table from database
+For every possible transaction within our API we provide a detailed overview.
+- For transaction with **POST** methods we provide a structure of the request body as a **json** object template and extra information on the right side.
+- For transaction with **GET** methods we provide a small description of return value. For some methods a value is required to be passed as a link attribute.
+- For transaction with **PATCH** methods we provide a structure of the request body as a **json** object template.
+- For transaction with **DELETE** methods we provide a structure of the request body as a **json** object template.\
 
-**POST** /transactions/ - endpoint used to insert values into database, arguments:
-1. account_id, type=int, required=True
-2. receiver_name, type=str, required=True 
-3. receiver_account_number, type=str, required=True 
-4. amount, type=float, required=True 
-5. details, type=str, required=False 
-6. transaction_date, type=str, required=True
+**GET** /transactions - returns full transactions table from database.
 
+**POST** /transactions - endpoint used to insert values into database.
+>JSON BODY
+```
+{
+    "account_id": 1,                             |  type=int, required=True
+    "amount": 10,00,                             |  type=float, required=True
+    "details": "test_details",                   |  type=str, required=False
+    "receiver_account_number": "isbs3333333333", |  type=str, required=True
+    "receiver_name": "Steal Inc.",               |  type=str, required=True
+    "transaction_date": "2022-09-11 00:00:00"    |  type=str, required=True
+}
+```
+\
+**GET** /transactions_by_acc_id/ - returns single transaction from database.
+>ENDPOINT EXAMPLE: 
+```
+GET localhost/transactions_by_acc_id/1
+```
+\
+**DELETE** /transactions_acc_id/ - deletes single transaction from database.
+>ENDPOINT EXAMPLE: 
+```
+DELETE localhost/transactions_by_acc_id/1
+```
 
-**GET** /transactions_by_acc_id/ - returns single transaction from database, arguments : 
-1. account_id, type=int, required=True
+### Accounts endpoints
 
-**DELETE** /transactions_acc_id/ - deletes single transaction from database, arguments :
-1. transaction_id, type=int, required=True
+**GET** /accounts - returns full accounts table from database.
 
->**Accounts endpoints**
+**POST** /accounts/ - endpoint used to insert values into database.
+>JSON BODY
+```
+}
+    credential_id: 1,                             |  type=int, required=True
+    first_name: "Top",                            |  type=str, required=True 
+    last_name: "G",                               |  type=str, required=True 
+    social_security_number: ,                     |  type=str, required=True 
+    account_number: 1,                            |  type=str, required=True 
+    account_status": "active",                    |  type=str, required=True 
+    balance: 100,00                               |  type=float required=True
+}
+```
+**GET** /accounts/ - returns single transaction from database.
+>ENDPOINT EXAMPLE: 
+```
+GET localhost/accounts/1
+```
 
-**GET** /accounts - returns full accounts table from database
-
-**POST** /accounts/ - endpoint used to insert values into database, arguments:
-1. credential_id, type=int, required=True
-2. first_name, type=str, required=True 
-3. last_name, type=str, required=True 
-4. social_security_number, type=str, required=True 
-5. account_number, type=str, required=True 
-6. account_status", type=str, required=True 
-7. balance, required=True
-
-**POST** /accounts/ - returns single transaction from database, arguments :
-1. account_id, type=int, required=True
-
-**DELETE** /accounts/ - deletes single transaction from database, arguments :
-1. account_id, type=int, required=True
+**DELETE** /accounts/ - deletes single transaction from database.
+>ENDPOINT EXAMPLE: 
+```
+DELETE localhost/accounts/1
+```
 
 **GET** /accounts_nr/ - returns balance of single account, arguments:
-1. account_number, type=int, required=True
+>ENDPOINT EXAMPLE: 
+```
+GET localhost/accounts/1
+```
 
-***Administrative /accounts/ endpoints***
+### Administrative Accounts endpoints:
 
-**PATCH** /accounts/ - called during insertion in the transactions table, to update balances of accounts, arguments:
-1. balance, type=float, required=True
-2. id, type=int, required=True
->**Credentials endpoints**
+**PATCH** /accounts/ - called during insertion in the transactions table, to update balances of accounts.
+>JSON BODY
+```
+{
+balance: 100,00, type=float, required=True
+id: "1" , type=str, required=True
+}
+```
+### Credentials endpoints
+\
+**GET** /credentials - returns full credentials table from database.
 
-**GET** /credentials - returns full credentials table from database
+**GET** /credentials/ - returns single credentials row from database.
+>ENDPOINT EXAMPLE: 
+```
+GET localhost/credentials/1
+```
+### Validations endpoints
 
-**GET** /credentials/ - returns single credentials row from database, arguments:
-1. credentials_id, type=int, required=True
-
->**Validation endpoints**
-
-**GET** /validation/ :
-returns single account from accounts database, validating login, arguments:
-1. sec_number, type=string, required=True
-2. password, type=string, required=True
+**GET** /validation/ - Validates login with password and social security number (1.ssc, 2.password).
+>ENDPOINT EXAMPLE: 
+```
+GET localhost/credentials/010101-11111/password1
+```
 
 
 
