@@ -1,7 +1,13 @@
-import json
+import simplejson as json
 from datetime import datetime
-
 import yaml
+
+
+def check_validation(sec_number, password, data):
+    for i in data:
+        if i.get("account_password") == password and i.get("social_security_number") == sec_number:
+            return i
+    return {"err": "There was no such account with provided password and SSN"}
 
 
 def create_conf(path, sub_directory):
@@ -24,3 +30,7 @@ def convert_to_json(data):
 def convert_datetime_to_string(o):
     if isinstance(o, datetime):
         return o.__str__()
+
+
+def from_json_to_tuple(data):
+    return tuple(data.values())
