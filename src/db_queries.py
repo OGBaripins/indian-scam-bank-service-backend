@@ -22,9 +22,6 @@ def con():
     return mydb
 
 
-con()
-
-
 # Methods of queries and executions
 def get_accounts():
     mydb = con()
